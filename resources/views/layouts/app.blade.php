@@ -16,7 +16,27 @@
     </head>
     <body class="font-sans antialiased">
         <div class="min-h-screen bg-gray-100">
-            @include('layouts.navigation')
+            <!-- Simple navigation for testing -->
+<nav class="bg-white border-b border-gray-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-16">
+            <div class="flex items-center">
+                <a href="{{ route('dashboard') }}" class="text-xl font-semibold text-gray-800">
+                    Activity Tracker
+                </a>
+            </div>
+            @auth
+            <div class="flex items-center">
+                <span class="text-gray-700">{{ Auth::user()->name }}</span>
+                <form method="POST" action="{{ route('logout') }}" class="ml-4">
+                    @csrf
+                    <button type="submit" class="text-gray-500 hover:text-gray-700">Logout</button>
+                </form>
+            </div>
+            @endauth
+        </div>
+    </div>
+</nav>
 
             <!-- Page Heading -->
             @if (isset($header))
@@ -29,7 +49,7 @@
 
             <!-- Page Content -->
             <main>
-                {{ $slot }}
+                @yield('content')
             </main>
         </div>
     </body>

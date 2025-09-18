@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\ActivityController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -28,6 +29,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', function () {
         return view('dashboard');
     })->name('dashboard');
+    
+    // Activity Routes
+    Route::resource('activities', ActivityController::class);
+    Route::post('activities/{activity}/status', [ActivityController::class, 'updateStatus'])
+        ->name('activities.update-status');
 });
 
 Route::get('/test', function () {
