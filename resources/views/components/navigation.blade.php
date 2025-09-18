@@ -48,6 +48,14 @@
                         @endif
                     </a>
 
+                    <a href="{{ route('reports.index') }}" 
+                       class="nav-link {{ request()->routeIs('reports.*') ? 'nav-link-active' : 'nav-link-inactive' }}">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                        </svg>
+                        Reports
+                    </a>
+
                     @if(auth()->user()->canManageActivities())
                         <div class="relative" x-data="{ open: false }">
                             <button @click="open = !open" 
@@ -79,7 +87,7 @@
                                         </svg>
                                         User Management
                                     </a>
-                                    <a href="#" class="dropdown-link">
+                                    <a href="{{ route('reports.index') }}" class="dropdown-link">
                                         <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
                                         </svg>
@@ -101,16 +109,6 @@
 
             <!-- Right Side Navigation -->
             <div class="flex items-center space-x-4">
-                <!-- Quick Actions -->
-                <div class="hidden md:flex items-center space-x-2">
-                    <a href="{{ route('activities.create') }}" 
-                       class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-lg text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 shadow-md hover:shadow-lg transition-all duration-200">
-                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                        </svg>
-                        New Activity
-                    </a>
-                </div>
 
                 <!-- Notifications -->
                 <div class="relative" x-data="{ open: false }">
@@ -170,7 +168,7 @@
                             </div>
                         </div>
                         <div class="hidden md:block text-left">
-                            <p class="text-sm font-medium text-gray-900">{{ auth()->user()->name }}</p>
+                            <p class="text-sm font-medium text-gray-900">{{ explode(' ', auth()->user()->name)[0] }}</p>
                             <p class="text-xs text-gray-500">{{ ucfirst(auth()->user()->role) }}</p>
                         </div>
                         <svg class="w-4 h-4 text-gray-500 transition-transform duration-200" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -270,6 +268,14 @@
                         {{ $pendingCount }}
                     </span>
                 @endif
+            </a>
+            
+            <a href="{{ route('reports.index') }}" 
+               class="mobile-nav-link {{ request()->routeIs('reports.*') ? 'mobile-nav-link-active' : 'mobile-nav-link-inactive' }}">
+                <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                </svg>
+                Reports
             </a>
             
             <a href="{{ route('activities.create') }}" 

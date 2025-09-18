@@ -37,6 +37,14 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('activities', ActivityController::class);
     Route::post('activities/{activity}/status', [ActivityController::class, 'updateStatus'])
         ->name('activities.update-status');
+    
+    // Report Routes
+    Route::get('/reports', [App\Http\Controllers\ReportController::class, 'index'])->name('reports.index');
+    Route::post('/reports/generate', [App\Http\Controllers\ReportController::class, 'generate'])->name('reports.generate');
+    Route::get('/reports/trends', [App\Http\Controllers\ReportController::class, 'trends'])->name('reports.trends');
+    Route::get('/reports/department-stats', [App\Http\Controllers\ReportController::class, 'departmentStats'])->name('reports.department-stats');
+    Route::post('/reports/export', [App\Http\Controllers\ReportController::class, 'export'])->name('reports.export');
+    Route::get('/reports/summary', [App\Http\Controllers\ReportController::class, 'summary'])->name('reports.summary');
 });
 
 Route::get('/test', function () {
