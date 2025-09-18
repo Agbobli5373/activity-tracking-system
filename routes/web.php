@@ -20,9 +20,10 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-// Authentication Routes
+// Authentication Routes with Rate Limiting
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
-Route::post('/login', [LoginController::class, 'login']);
+Route::post('/login', [LoginController::class, 'login'])
+    ->middleware('throttle:5,15'); // 5 attempts per 15 minutes
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 // Protected Routes
@@ -38,12 +39,16 @@ Route::middleware(['auth'])->group(function () {
     Route::post('activities/{activity}/status', [ActivityController::class, 'updateStatus'])
         ->name('activities.update-status');
     
-    // Report Routes
+    // Report Routes with Rate Limiting
     Route::get('/reports', [App\Http\Controllers\ReportController::class, 'index'])->name('reports.index');
-    Route::post('/reports/generate', [App\Http\Controllers\ReportController::class, 'generate'])->name('reports.generate');
+    Route::post('/reports/generate', [App\Http\Controllers\ReportController::class, 'generate'])
+        ->middleware('throttle:10,60') // 10 reports per hour
+        ->name('reports.generate');
     Route::get('/reports/trends', [App\Http\Controllers\ReportController::class, 'trends'])->name('reports.trends');
     Route::get('/reports/department-stats', [App\Http\Controllers\ReportController::class, 'departmentStats'])->name('reports.department-stats');
-    Route::post('/reports/export', [App\Http\Controllers\ReportController::class, 'export'])->name('reports.export');
+    Route::post('/reports/export', [App\Http\Controllers\ReportController::class, 'export'])
+        ->middleware('throttle:5,60') // 5 exports per hour
+        ->name('reports.export');
     Route::get('/reports/summary', [App\Http\Controllers\ReportController::class, 'summary'])->name('reports.summary');
 });
 

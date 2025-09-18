@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Rules\NoMaliciousContent;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateActivityStatusRequest extends FormRequest
@@ -33,7 +34,14 @@ class UpdateActivityStatusRequest extends FormRequest
     {
         return [
             'status' => 'required|in:pending,done',
-            'remarks' => 'required|string|min:10',
+            'remarks' => [
+                'required',
+                'string',
+                'min:10',
+                'max:1000',
+                'regex:/^[a-zA-Z0-9\s\-_.,()!?]+$/', // Allow alphanumeric, spaces, and common punctuation
+                new NoMaliciousContent(),
+            ],
         ];
     }
 
@@ -49,6 +57,32 @@ class UpdateActivityStatusRequest extends FormRequest
             'status.in' => 'Status must be either pending or done.',
             'remarks.required' => 'Remarks are required when updating status.',
             'remarks.min' => 'Remarks must be at least 10 characters long.',
+            'remarks.max' => 'Remarks cannot exceed 1000 characters.',
+            'remarks.regex' => 'Remarks contain invalid characters. Only letters, numbers, spaces, and common punctuation are allowed.',
+        ];
+    }
+
+    /**
+     * Prepare the data for validation.
+     */
+    protected function prepareForValidation()
+    {
+        $this->merge([
+            // Sanitize input data
+            'remarks' => $this->input('remarks') ? trim(strip_tags($this->input('remarks'))) : null,
+        ]);
+    }
+
+    /**
+     * Get custom attributes for validator errors.
+     *
+     * @return array<string, string>
+     */
+    public function attributes()
+    {
+        return [
+            'status' => 'activity status',
+            'remarks' => 'status remarks',
         ];
     }
 }
