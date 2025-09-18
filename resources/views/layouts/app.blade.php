@@ -15,40 +15,13 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     <body class="font-sans antialiased">
-        <div class="min-h-screen bg-gray-100">
-            <!-- Simple navigation for testing -->
-<nav class="bg-white border-b border-gray-100">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between h-16">
-            <div class="flex items-center">
-                <a href="{{ route('dashboard') }}" class="text-xl font-semibold text-gray-800">
-                    Activity Tracker
-                </a>
-            </div>
+        <div class="min-h-screen bg-gray-50" x-data="{ mobileMenuOpen: false, userMenuOpen: false }">
             @auth
-            <div class="flex items-center">
-                <span class="text-gray-700">{{ Auth::user()->name }}</span>
-                <form method="POST" action="{{ route('logout') }}" class="ml-4">
-                    @csrf
-                    <button type="submit" class="text-gray-500 hover:text-gray-700">Logout</button>
-                </form>
-            </div>
+                @include('components.navigation')
             @endauth
-        </div>
-    </div>
-</nav>
-
-            <!-- Page Heading -->
-            @if (isset($header))
-                <header class="bg-white shadow">
-                    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                        {{ $header }}
-                    </div>
-                </header>
-            @endif
 
             <!-- Page Content -->
-            <main>
+            <main class="{{ auth()->check() ? 'pt-16' : '' }}">
                 @yield('content')
             </main>
         </div>

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\ActivityController;
+use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -26,9 +27,11 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 // Protected Routes
 Route::middleware(['auth'])->group(function () {
-    Route::get('/dashboard', function () {
-        return view('dashboard');
-    })->name('dashboard');
+    // Dashboard Routes
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard/activities', [DashboardController::class, 'getActivities'])->name('dashboard.activities');
+    Route::get('/dashboard/handover', [DashboardController::class, 'handover'])->name('dashboard.handover');
+    Route::get('/dashboard/updates', [DashboardController::class, 'getUpdates'])->name('dashboard.updates');
     
     // Activity Routes
     Route::resource('activities', ActivityController::class);

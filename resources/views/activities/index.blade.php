@@ -1,24 +1,28 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8" x-data="activityIndex()">
-    <!-- Header -->
-    <div class="mb-6">
-        <div class="flex justify-between items-center">
-            <h1 class="text-3xl font-bold text-gray-900">Activities</h1>
-            <a href="{{ route('activities.create') }}" 
-               class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 focus:bg-blue-700 active:bg-blue-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition ease-in-out duration-150">
-                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                </svg>
-                New Activity
-            </a>
+<div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8" x-data="activityIndex()">
+    <!-- Page Header -->
+    <div class="mb-8">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+            <div class="mb-4 sm:mb-0">
+                <h1 class="text-3xl font-bold text-gray-900">Activities</h1>
+                <p class="mt-2 text-sm text-gray-600">Manage and track all your activities in one place</p>
+            </div>
+            <div class="flex items-center space-x-3">
+                <a href="{{ route('activities.create') }}" class="btn-primary">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                    New Activity
+                </a>
+            </div>
         </div>
     </div>
 
     <!-- Filters Card -->
-    <div class="bg-white rounded-lg shadow mb-6">
-        <div class="p-6">
+    <div class="card mb-8">
+        <div class="card-body">
             <form method="GET" action="{{ route('activities.index') }}" class="space-y-4">
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                     <!-- Search -->
@@ -29,7 +33,7 @@
                                id="search"
                                value="{{ request('search') }}"
                                placeholder="Search activities..."
-                               class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                               class="form-input">
                     </div>
 
                     <!-- Status Filter -->
@@ -37,7 +41,7 @@
                         <label for="status" class="block text-sm font-medium text-gray-700 mb-1">Status</label>
                         <select name="status" 
                                 id="status"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                class="form-input">
                             <option value="">All Statuses</option>
                             <option value="pending" {{ request('status') === 'pending' ? 'selected' : '' }}>Pending</option>
                             <option value="done" {{ request('status') === 'done' ? 'selected' : '' }}>Done</option>
@@ -51,7 +55,7 @@
                                name="date" 
                                id="date"
                                value="{{ request('date') }}"
-                               class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                               class="form-input">
                     </div>
 
                     <!-- Creator Filter -->
@@ -59,7 +63,7 @@
                         <label for="creator" class="block text-sm font-medium text-gray-700 mb-1">Creator</label>
                         <select name="creator" 
                                 id="creator"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                class="form-input">
                             <option value="">All Creators</option>
                             @foreach($users as $user)
                                 <option value="{{ $user->id }}" {{ request('creator') == $user->id ? 'selected' : '' }}>
@@ -71,8 +75,7 @@
                 </div>
 
                 <div class="flex justify-between items-center pt-4">
-                    <button type="submit" 
-                            class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 focus:bg-gray-700 active:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                    <button type="submit" class="btn-secondary">
                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                         </svg>
@@ -91,7 +94,7 @@
     </div>
 
     <!-- Activities List -->
-    <div class="bg-white rounded-lg shadow overflow-hidden">
+    <div class="card overflow-hidden">
         @if($activities->count() > 0)
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200">

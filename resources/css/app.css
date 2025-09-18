@@ -26,3 +26,97 @@
         --radius: 0.5rem;
     }
 }
+
+@layer components {
+    /* Navigation Link Styles */
+    .nav-link {
+        @apply inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500;
+    }
+
+    .nav-link-active {
+        @apply bg-blue-50 text-blue-700 border border-blue-200 shadow-sm;
+    }
+
+    .nav-link-inactive {
+        @apply text-gray-600 hover:text-gray-900 hover:bg-gray-50 border border-transparent;
+    }
+
+    /* Dropdown Link Styles */
+    .dropdown-link {
+        @apply flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors duration-150;
+    }
+
+    /* Mobile Navigation Styles */
+    .mobile-nav-link {
+        @apply flex items-center px-3 py-2 text-base font-medium rounded-lg transition-all duration-200;
+    }
+
+    .mobile-nav-link-active {
+        @apply bg-blue-50 text-blue-700 border-l-4 border-blue-500;
+    }
+
+    .mobile-nav-link-inactive {
+        @apply text-gray-600 hover:text-gray-900 hover:bg-gray-50 border-l-4 border-transparent;
+    }
+
+    /* Professional Button Styles */
+    .btn-primary {
+        @apply inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 shadow-md hover:shadow-lg transition-all duration-200;
+    }
+
+    .btn-secondary {
+        @apply inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 shadow-sm hover:shadow-md transition-all duration-200;
+    }
+
+    /* Card Styles */
+    .card {
+        @apply bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow duration-200;
+    }
+
+    .card-header {
+        @apply px-6 py-4 border-b border-gray-200;
+    }
+
+    .card-body {
+        @apply px-6 py-4;
+    }
+
+    /* Form Styles */
+    .form-input {
+        @apply w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200;
+    }
+
+    .form-label {
+        @apply block text-sm font-medium text-gray-700 mb-1;
+    }
+
+    /* Status Badge Styles */
+    .status-badge {
+        @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+    }
+
+    .status-pending {
+        @apply bg-yellow-100 text-yellow-800;
+    }
+
+    .status-done {
+        @apply bg-green-100 text-green-800;
+    }
+
+    .status-overdue {
+        @apply bg-red-100 text-red-800;
+    }
+
+    /* Priority Badge Styles */
+    .priority-low {
+        @apply bg-gray-100 text-gray-800;
+    }
+
+    .priority-medium {
+        @apply bg-yellow-100 text-yellow-800;
+    }
+
+    .priority-high {
+        @apply bg-red-100 text-red-800;
+    }
+}
