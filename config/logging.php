@@ -53,7 +53,7 @@ return [
     'channels' => [
         'stack' => [
             'driver' => 'stack',
-            'channels' => ['single'],
+            'channels' => env('APP_ENV') === 'production' ? ['daily', 'slack'] : ['single'],
             'ignore_exceptions' => false,
         ],
 
@@ -67,7 +67,32 @@ return [
             'driver' => 'daily',
             'path' => storage_path('logs/laravel.log'),
             'level' => env('LOG_LEVEL', 'debug'),
-            'days' => 14,
+            'days' => env('LOG_RETENTION_DAYS', 14),
+            'permission' => 0644,
+        ],
+
+        'activity' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/activity.log'),
+            'level' => env('LOG_LEVEL', 'info'),
+            'days' => env('LOG_RETENTION_DAYS', 30),
+            'permission' => 0644,
+        ],
+
+        'security' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/security.log'),
+            'level' => env('LOG_LEVEL', 'warning'),
+            'days' => env('LOG_RETENTION_DAYS', 90),
+            'permission' => 0644,
+        ],
+
+        'performance' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/performance.log'),
+            'level' => env('LOG_LEVEL', 'info'),
+            'days' => env('LOG_RETENTION_DAYS', 7),
+            'permission' => 0644,
         ],
 
         'slack' => [

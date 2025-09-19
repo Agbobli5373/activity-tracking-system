@@ -14,9 +14,23 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
+        // Always seed admin user
         $this->call([
             AdminUserSeeder::class,
-            SampleDataSeeder::class,
         ]);
+
+        // Only seed sample data in non-production environments
+        if (app()->environment(['local', 'staging', 'testing'])) {
+            $this->call([
+                SampleDataSeeder::class,
+            ]);
+        }
+
+        // Production-specific seeders
+        if (app()->environment('production')) {
+            $this->call([
+                ProductionUserSeeder::class,
+            ]);
+        }
     }
 }
