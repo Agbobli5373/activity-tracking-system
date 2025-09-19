@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('welcome-new');
 });
 
 // Authentication Routes with Rate Limiting
@@ -64,3 +64,9 @@ Route::middleware(['auth'])->group(function () {
 Route::get('/test', function () {
     return view('test');
 })->name('test');
+
+Route::get('/welcome-new', function () {
+    return view('welcome-new');
+})->name('welcome-new');
+
+
