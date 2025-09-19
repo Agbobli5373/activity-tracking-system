@@ -23,6 +23,7 @@ class Kernel extends HttpKernel
         \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
         \App\Http\Middleware\IpFilterMiddleware::class,
         \App\Http\Middleware\SecurityHeadersMiddleware::class,
+        \App\Http\Middleware\MetricsMiddleware::class,
     ];
 
     /**
