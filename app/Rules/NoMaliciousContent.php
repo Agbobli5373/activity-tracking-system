@@ -2,20 +2,21 @@
 
 namespace App\Rules;
 
-use Closure;
-use Illuminate\Contracts\Validation\ValidationRule;
+use Illuminate\Contracts\Validation\Rule;
 
-class NoMaliciousContent implements ValidationRule
+class NoMaliciousContent implements Rule
 {
     /**
-     * Run the validation rule.
+     * Determine if the validation rule passes.
      *
-     * @param  \Closure(string): \Illuminate\Translation\PotentiallyTranslatedString  $fail
+     * @param  string  $attribute
+     * @param  mixed  $value
+     * @return bool
      */
-    public function validate(string $attribute, mixed $value, Closure $fail): void
+    public function passes($attribute, $value)
     {
         if (!is_string($value)) {
-            return;
+            return true;
         }
 
         // Check for common XSS patterns
@@ -45,8 +46,7 @@ class NoMaliciousContent implements ValidationRule
                     'user_id' => auth()->id(),
                 ]);
                 
-                $fail('The :attribute contains potentially malicious content.');
-                return;
+                return false;
             }
         }
 
@@ -71,8 +71,7 @@ class NoMaliciousContent implements ValidationRule
                     'user_id' => auth()->id(),
                 ]);
                 
-                $fail('The :attribute contains potentially harmful content.');
-                return;
+                return false;
             }
         }
 
@@ -87,7 +86,19 @@ class NoMaliciousContent implements ValidationRule
                 'user_id' => auth()->id(),
             ]);
             
-            $fail('The :attribute contains invalid path characters.');
+            return false;
         }
+
+        return true;
+    }
+
+    /**
+     * Get the validation error message.
+     *
+     * @return string
+     */
+    public function message()
+    {
+        return 'The :attribute contains potentially malicious content.';
     }
 }
