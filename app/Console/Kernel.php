@@ -15,7 +15,11 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // $schedule->command('inspire')->hourly();
+        // Clean up audit logs older than 1 year, run monthly
+        $schedule->command('audit:cleanup --days=365')
+                 ->monthly()
+                 ->withoutOverlapping()
+                 ->runInBackground();
     }
 
     /**

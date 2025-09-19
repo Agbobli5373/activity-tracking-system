@@ -50,6 +50,15 @@ Route::middleware(['auth'])->group(function () {
         ->middleware('throttle:5,60') // 5 exports per hour
         ->name('reports.export');
     Route::get('/reports/summary', [App\Http\Controllers\ReportController::class, 'summary'])->name('reports.summary');
+    
+    // Audit Log Routes (Admin/Manager only)
+    Route::prefix('audit')->name('audit.')->group(function () {
+        Route::get('/', [App\Http\Controllers\AuditLogController::class, 'index'])->name('index');
+        Route::get('/security', [App\Http\Controllers\AuditLogController::class, 'security'])->name('security');
+        Route::get('/export', [App\Http\Controllers\AuditLogController::class, 'export'])->name('export');
+        Route::get('/user/{user}', [App\Http\Controllers\AuditLogController::class, 'userActivity'])->name('user-activity');
+        Route::get('/{auditLog}', [App\Http\Controllers\AuditLogController::class, 'show'])->name('show');
+    });
 });
 
 Route::get('/test', function () {

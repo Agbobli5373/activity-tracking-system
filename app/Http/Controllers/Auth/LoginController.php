@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Services\AuditService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -39,6 +40,9 @@ class LoginController extends Controller
         $user = User::where($fieldType, $loginField)->first();
 
         if (!$user || !Hash::check($password, $user->password)) {
+            // Log failed login attempt - don't pass user ID if user doesn't exist
+            AuditService::logAuth('login_failed', null, $request);
+            
             throw ValidationException::withMessages([
                 'login' => ['The provided credentials are incorrect.'],
             ]);
@@ -48,6 +52,9 @@ class LoginController extends Controller
 
         $request->session()->regenerate();
 
+        // Log successful login
+        AuditService::logAuth('login_success', $user->id, $request);
+
         return redirect()->intended('/dashboard');
     }
 
@@ -56,6 +63,11 @@ class LoginController extends Controller
      */
     public function logout(Request $request)
     {
+        $userId = Auth::id();
+        
+        // Log logout before actually logging out
+        AuditService::logAuth('logout', $userId, $request);
+        
         Auth::logout();
 
         $request->session()->invalidate();

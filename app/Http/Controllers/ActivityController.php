@@ -9,10 +9,12 @@ use App\Models\Activity;
 use App\Models\ActivityUpdate;
 use App\Models\User;
 use App\Services\ActivityService;
+use App\Services\AuditService;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\DB;
 
 class ActivityController extends Controller
 {
@@ -80,24 +82,29 @@ class ActivityController extends Controller
      */
     public function store(StoreActivityRequest $request): RedirectResponse
     {
-        $validated = $request->validated();
-        $validated['created_by'] = auth()->id();
+        return AuditService::transaction(function () use ($request) {
+            $validated = $request->validated();
+            $validated['created_by'] = auth()->id();
 
-        $activity = Activity::create($validated);
+            $activity = Activity::create($validated);
 
-        // Create initial audit entry
-        ActivityUpdate::createAuditEntry(
-            $activity->id,
-            auth()->id(),
-            null,
-            'pending',
-            'Activity created',
-            $request->ip(),
-            $request->userAgent()
-        );
+            // Create initial audit entry
+            ActivityUpdate::createAuditEntry(
+                $activity->id,
+                auth()->id(),
+                null,
+                'pending',
+                'Activity created',
+                $request->ip(),
+                $request->userAgent()
+            );
 
-        return redirect()->route('activities.show', $activity)
-            ->with('success', 'Activity created successfully.');
+            // Log the activity creation
+            AuditService::logModelChange('activity_created', $activity, null, $request);
+
+            return redirect()->route('activities.show', $activity)
+                ->with('success', 'Activity created successfully.');
+        }, 'activity_creation', 'Creating new activity: ' . $request->name);
     }
 
     /**
@@ -132,12 +139,18 @@ class ActivityController extends Controller
      */
     public function update(UpdateActivityRequest $request, Activity $activity): RedirectResponse
     {
-        $validated = $request->validated();
-        
-        $activity->update($validated);
+        return AuditService::transaction(function () use ($request, $activity) {
+            $oldValues = $activity->toArray();
+            $validated = $request->validated();
+            
+            $activity->update($validated);
 
-        return redirect()->route('activities.show', $activity)
-            ->with('success', 'Activity updated successfully.');
+            // Log the activity update
+            AuditService::logModelChange('activity_updated', $activity, $oldValues, $request);
+
+            return redirect()->route('activities.show', $activity)
+                ->with('success', 'Activity updated successfully.');
+        }, 'activity_update', 'Updating activity: ' . $activity->name);
     }
 
     /**
@@ -174,12 +187,19 @@ class ActivityController extends Controller
     {
         $this->authorize('delete', $activity);
         
-        // Delete related updates first
-        $activity->updates()->delete();
-        $activity->delete();
+        return AuditService::transaction(function () use ($activity) {
+            $oldValues = $activity->toArray();
+            
+            // Delete related updates first
+            $activity->updates()->delete();
+            $activity->delete();
 
-        return redirect()->route('activities.index')
-            ->with('success', 'Activity deleted successfully.');
+            // Log the activity deletion
+            AuditService::logModelChange('activity_deleted', $activity, $oldValues);
+
+            return redirect()->route('activities.index')
+                ->with('success', 'Activity deleted successfully.');
+        }, 'activity_deletion', 'Deleting activity: ' . $activity->name);
     }
 
     /**
