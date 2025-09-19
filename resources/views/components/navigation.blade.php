@@ -16,7 +16,6 @@
                             <h1 class="text-xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
                                 Activity Tracker
                             </h1>
-                            <p class="text-xs text-gray-500 -mt-1">Professional Task Management</p>
                         </div>
                     </a>
                 </div>

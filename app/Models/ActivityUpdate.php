@@ -36,6 +36,13 @@ class ActivityUpdate extends Model
     ];
 
     /**
+     * The relationships that should always be loaded.
+     *
+     * @var array
+     */
+    protected $with = ['user:id,name,role'];
+
+    /**
      * Validation rules for the ActivityUpdate model.
      *
      * @return array<string, string>

@@ -9,6 +9,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Collection as SupportCollection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
 
 class ReportService
 {
@@ -20,46 +21,50 @@ class ReportService
      */
     public function generateActivityReport(array $criteria): array
     {
-        $startDate = Carbon::parse($criteria['start_date'] ?? now()->startOfMonth())->startOfDay();
-        $endDate = Carbon::parse($criteria['end_date'] ?? now()->endOfMonth())->endOfDay();
+        $cacheKey = $this->getReportCacheKey($criteria);
         
-        $query = Activity::with(['creator', 'assignee', 'updates'])
-            ->whereBetween('created_at', [$startDate, $endDate]);
+        return Cache::remember($cacheKey, 1800, function () use ($criteria) { // 30 minutes cache
+            $startDate = Carbon::parse($criteria['start_date'] ?? now()->startOfMonth())->startOfDay();
+            $endDate = Carbon::parse($criteria['end_date'] ?? now()->endOfMonth())->endOfDay();
+            
+            $query = Activity::forReports()
+                ->whereBetween('created_at', [$startDate, $endDate]);
 
-        // Apply filters
-        if (!empty($criteria['status'])) {
-            $query->where('status', $criteria['status']);
-        }
+            // Apply filters
+            if (!empty($criteria['status'])) {
+                $query->where('status', $criteria['status']);
+            }
 
-        if (!empty($criteria['creator_id'])) {
-            $query->where('created_by', $criteria['creator_id']);
-        }
+            if (!empty($criteria['creator_id'])) {
+                $query->where('created_by', $criteria['creator_id']);
+            }
 
-        if (!empty($criteria['assignee_id'])) {
-            $query->where('assigned_to', $criteria['assignee_id']);
-        }
+            if (!empty($criteria['assignee_id'])) {
+                $query->where('assigned_to', $criteria['assignee_id']);
+            }
 
-        if (!empty($criteria['priority'])) {
-            $query->where('priority', $criteria['priority']);
-        }
+            if (!empty($criteria['priority'])) {
+                $query->where('priority', $criteria['priority']);
+            }
 
-        if (!empty($criteria['department'])) {
-            $query->whereHas('creator', function ($q) use ($criteria) {
-                $q->where('department', $criteria['department']);
-            });
-        }
+            if (!empty($criteria['department'])) {
+                $query->whereHas('creator', function ($q) use ($criteria) {
+                    $q->where('department', $criteria['department']);
+                });
+            }
 
-        $activities = $query->get();
-        
-        return [
-            'activities' => $activities,
-            'statistics' => $this->calculateStatistics($activities, $startDate, $endDate),
-            'period' => [
-                'start_date' => $startDate->format('Y-m-d'),
-                'end_date' => $endDate->format('Y-m-d'),
-            ],
-            'filters' => $criteria
-        ];
+            $activities = $query->get();
+            
+            return [
+                'activities' => $activities,
+                'statistics' => $this->calculateStatistics($activities, $startDate, $endDate),
+                'period' => [
+                    'start_date' => $startDate->format('Y-m-d'),
+                    'end_date' => $endDate->format('Y-m-d'),
+                ],
+                'filters' => $criteria
+            ];
+        });
     }
 
     /**
@@ -212,25 +217,29 @@ class ReportService
      */
     public function getDepartmentStatistics(Carbon $startDate, Carbon $endDate): array
     {
-        return DB::table('activities')
-            ->join('users', 'activities.created_by', '=', 'users.id')
-            ->select(
-                'users.department',
-                DB::raw('COUNT(*) as total_activities'),
-                DB::raw('SUM(CASE WHEN activities.status = "done" THEN 1 ELSE 0 END) as completed_activities'),
-                DB::raw('SUM(CASE WHEN activities.status = "pending" THEN 1 ELSE 0 END) as pending_activities')
-            )
-            ->whereBetween('activities.created_at', [$startDate, $endDate])
-            ->groupBy('users.department')
-            ->orderBy('total_activities', 'desc')
-            ->get()
-            ->map(function ($item) {
-                $item->completion_rate = $item->total_activities > 0 
-                    ? round(($item->completed_activities / $item->total_activities) * 100, 2) 
-                    : 0;
-                return $item;
-            })
-            ->toArray();
+        $cacheKey = "dept_stats_{$startDate->format('Y-m-d')}_{$endDate->format('Y-m-d')}";
+        
+        return Cache::remember($cacheKey, 1800, function () use ($startDate, $endDate) { // 30 minutes cache
+            return DB::table('activities')
+                ->join('users', 'activities.created_by', '=', 'users.id')
+                ->select(
+                    'users.department',
+                    DB::raw('COUNT(*) as total_activities'),
+                    DB::raw('SUM(CASE WHEN activities.status = "done" THEN 1 ELSE 0 END) as completed_activities'),
+                    DB::raw('SUM(CASE WHEN activities.status = "pending" THEN 1 ELSE 0 END) as pending_activities')
+                )
+                ->whereBetween('activities.created_at', [$startDate, $endDate])
+                ->groupBy('users.department')
+                ->orderBy('total_activities', 'desc')
+                ->get()
+                ->map(function ($item) {
+                    $item->completion_rate = $item->total_activities > 0 
+                        ? round(($item->completed_activities / $item->total_activities) * 100, 2) 
+                        : 0;
+                    return $item;
+                })
+                ->toArray();
+        });
     }
 
     /**
@@ -243,47 +252,51 @@ class ReportService
      */
     public function getActivityTrends(Carbon $startDate, Carbon $endDate, string $groupBy = 'day'): array
     {
-        $dateFormat = match ($groupBy) {
-            'week' => '%Y-%u',
-            'month' => '%Y-%m',
-            default => '%Y-%m-%d',
-        };
+        $cacheKey = "trends_{$startDate->format('Y-m-d')}_{$endDate->format('Y-m-d')}_{$groupBy}";
+        
+        return Cache::remember($cacheKey, 1800, function () use ($startDate, $endDate, $groupBy) { // 30 minutes cache
+            $dateFormat = match ($groupBy) {
+                'week' => '%Y-%u',
+                'month' => '%Y-%m',
+                default => '%Y-%m-%d',
+            };
 
-        $activities = DB::table('activities')
-            ->select(
-                DB::raw("DATE_FORMAT(created_at, '{$dateFormat}') as period"),
-                DB::raw('COUNT(*) as total'),
-                DB::raw('SUM(CASE WHEN status = "done" THEN 1 ELSE 0 END) as completed'),
-                DB::raw('SUM(CASE WHEN status = "pending" THEN 1 ELSE 0 END) as pending')
-            )
-            ->whereBetween('created_at', [$startDate, $endDate])
-            ->groupBy('period')
-            ->orderBy('period')
-            ->get();
+            $activities = DB::table('activities')
+                ->select(
+                    DB::raw("DATE_FORMAT(created_at, '{$dateFormat}') as period"),
+                    DB::raw('COUNT(*) as total'),
+                    DB::raw('SUM(CASE WHEN status = "done" THEN 1 ELSE 0 END) as completed'),
+                    DB::raw('SUM(CASE WHEN status = "pending" THEN 1 ELSE 0 END) as pending')
+                )
+                ->whereBetween('created_at', [$startDate, $endDate])
+                ->groupBy('period')
+                ->orderBy('period')
+                ->get();
 
-        return [
-            'labels' => $activities->pluck('period')->toArray(),
-            'datasets' => [
-                [
-                    'label' => 'Total Activities',
-                    'data' => $activities->pluck('total')->toArray(),
-                    'backgroundColor' => 'rgba(59, 130, 246, 0.5)',
-                    'borderColor' => 'rgb(59, 130, 246)',
-                ],
-                [
-                    'label' => 'Completed',
-                    'data' => $activities->pluck('completed')->toArray(),
-                    'backgroundColor' => 'rgba(34, 197, 94, 0.5)',
-                    'borderColor' => 'rgb(34, 197, 94)',
-                ],
-                [
-                    'label' => 'Pending',
-                    'data' => $activities->pluck('pending')->toArray(),
-                    'backgroundColor' => 'rgba(251, 191, 36, 0.5)',
-                    'borderColor' => 'rgb(251, 191, 36)',
-                ],
-            ]
-        ];
+            return [
+                'labels' => $activities->pluck('period')->toArray(),
+                'datasets' => [
+                    [
+                        'label' => 'Total Activities',
+                        'data' => $activities->pluck('total')->toArray(),
+                        'backgroundColor' => 'rgba(59, 130, 246, 0.5)',
+                        'borderColor' => 'rgb(59, 130, 246)',
+                    ],
+                    [
+                        'label' => 'Completed',
+                        'data' => $activities->pluck('completed')->toArray(),
+                        'backgroundColor' => 'rgba(34, 197, 94, 0.5)',
+                        'borderColor' => 'rgb(34, 197, 94)',
+                    ],
+                    [
+                        'label' => 'Pending',
+                        'data' => $activities->pluck('pending')->toArray(),
+                        'backgroundColor' => 'rgba(251, 191, 36, 0.5)',
+                        'borderColor' => 'rgb(251, 191, 36)',
+                    ],
+                ]
+            ];
+        });
     }
 
     /**
@@ -293,11 +306,31 @@ class ReportService
      */
     public function getFilterOptions(): array
     {
-        return [
-            'users' => User::select('id', 'name', 'department')->orderBy('name')->get(),
-            'departments' => User::select('department')->distinct()->whereNotNull('department')->orderBy('department')->pluck('department'),
-            'statuses' => ['pending', 'done'],
-            'priorities' => ['low', 'medium', 'high'],
-        ];
+        return Cache::remember('report_filter_options', 3600, function () { // 1 hour cache
+            return [
+                'users' => User::select('id', 'name', 'department')->orderBy('name')->get(),
+                'departments' => User::select('department')->distinct()->whereNotNull('department')->orderBy('department')->pluck('department'),
+                'statuses' => ['pending', 'done'],
+                'priorities' => ['low', 'medium', 'high'],
+            ];
+        });
+    }
+
+    /**
+     * Generate cache key for report data
+     */
+    private function getReportCacheKey(array $criteria): string
+    {
+        return 'report_' . md5(serialize($criteria));
+    }
+
+    /**
+     * Clear report caches
+     */
+    public function clearReportCaches(): void
+    {
+        Cache::forget('report_filter_options');
+        // In production, implement more specific cache clearing
+        Cache::flush();
     }
 }

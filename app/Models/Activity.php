@@ -49,6 +49,13 @@ class Activity extends Model
     ];
 
     /**
+     * The relationships that should always be loaded.
+     *
+     * @var array
+     */
+    protected $with = ['creator', 'assignee'];
+
+    /**
      * Validation rules for the Activity model.
      *
      * @return array<string, string>
@@ -97,6 +104,44 @@ class Activity extends Model
     {
         $date = Carbon::parse($date);
         return $query->whereDate('created_at', $date);
+    }
+
+    /**
+     * Scope a query to include activities within a date range.
+     */
+    public function scopeDateRange($query, $startDate, $endDate)
+    {
+        return $query->whereBetween('created_at', [
+            Carbon::parse($startDate)->startOfDay(),
+            Carbon::parse($endDate)->endOfDay()
+        ]);
+    }
+
+    /**
+     * Scope for dashboard queries with optimized eager loading.
+     */
+    public function scopeForDashboard($query)
+    {
+        return $query->with([
+            'creator:id,name,department,role',
+            'assignee:id,name,department,role',
+            'updates' => function ($query) {
+                $query->with('user:id,name,role')
+                      ->latest()
+                      ->limit(5);
+            }
+        ]);
+    }
+
+    /**
+     * Scope for report queries with minimal data loading.
+     */
+    public function scopeForReports($query)
+    {
+        return $query->with([
+            'creator:id,name,department',
+            'assignee:id,name,department'
+        ]);
     }
 
     /**
