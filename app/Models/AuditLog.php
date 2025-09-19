@@ -96,6 +96,14 @@ class AuditLog extends Model
     }
 
     /**
+     * Scope to filter by date range.
+     */
+    public function scopeDateRange($query, $startDate, $endDate)
+    {
+        return $query->whereBetween('created_at', [$startDate, $endDate]);
+    }
+
+    /**
      * Get a human-readable description of the action.
      */
     public function getActionDescriptionAttribute(): string

@@ -62,7 +62,11 @@ class AuditLogController extends Controller
             });
         }
 
-        $auditLogs = $query->orderBy('created_at', 'desc')->paginate(25);
+        // Allow user to choose page size
+        $perPage = $request->input('per_page', 25);
+        $perPage = in_array($perPage, [10, 25, 50, 100]) ? $perPage : 25;
+        
+        $auditLogs = $query->orderBy('created_at', 'desc')->paginate($perPage);
         
         // Get filter options
         $users = User::select('id', 'name', 'employee_id')->orderBy('name')->get();
@@ -76,7 +80,7 @@ class AuditLogController extends Controller
                              ->orderBy('model_type')
                              ->pluck('model_type');
 
-        return view('audit.index', compact('auditLogs', 'users', 'actions', 'modelTypes'));
+        return view('audit.index', compact('auditLogs', 'users', 'actions', 'modelTypes', 'perPage'));
     }
 
     /**
