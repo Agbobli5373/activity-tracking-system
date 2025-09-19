@@ -8,6 +8,7 @@ Quick reference for Docker deployment of the Activity Tracking System.
 
 ```bash
 # Start services
+docker-compose -f docker-compose.dev.yml build
 docker-compose up -d
 
 # Initialize database

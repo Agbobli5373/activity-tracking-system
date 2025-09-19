@@ -29,7 +29,7 @@ RUN docker-php-ext-install \
     dom
 
 # Install Redis extension
-RUN apk add --no-cache --virtual .build-deps $PHPIZE_DEPS \
+RUN apk add --no-cache --virtual .build-deps $PHPIZE_DEPS linux-headers \
     && pecl install redis xdebug \
     && docker-php-ext-enable redis xdebug \
     && apk del .build-deps
@@ -55,8 +55,11 @@ RUN npm install
 # Copy application files
 COPY . .
 
+# Copy environment file
+RUN [ -f .env.example ] && cp .env.example .env || echo "APP_KEY=" > .env
+
 # Generate autoloader
-RUN composer dump-autoload --optimize
+RUN git config --global --add safe.directory /var/www/html && composer dump-autoload --optimize --no-scripts
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html \
