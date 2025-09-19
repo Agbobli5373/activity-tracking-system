@@ -31,7 +31,8 @@ class MetricsMiddleware
         $duration = microtime(true) - $startTime;
 
         // Get route name or URI
-        $route = $request->route() ? $request->route()->getName() : $request->path();
+        $route = $request->route() ? ($request->route()->getName() ?: $request->path()) : $request->path();
+        $route = $route ?: 'unknown';
         $method = $request->method();
         $status = (string) $response->getStatusCode();
 
