@@ -30,7 +30,18 @@ class ActivityPolicy
      */
     public function view(User $user, Activity $activity)
     {
-        return true; // All authenticated users can view individual activities
+        // Admins can view all activities
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        // Supervisors can view activities from their department
+        if ($user->isSupervisor()) {
+            return $user->department === $activity->creator->department;
+        }
+
+        // Members can only view activities they created or are assigned to
+        return $activity->created_by === $user->id || $activity->assigned_to === $user->id;
     }
 
     /**
@@ -53,11 +64,18 @@ class ActivityPolicy
      */
     public function update(User $user, Activity $activity)
     {
-        // Users can update activities they created or are assigned to
-        // Admins and supervisors can update any activity
-        return $user->canManageActivities() ||
-               $activity->created_by === $user->id ||
-               $activity->assigned_to === $user->id;
+        // Admins can update any activity
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        // Supervisors can update activities from their department
+        if ($user->isSupervisor()) {
+            return $user->department === $activity->creator->department;
+        }
+
+        // Members can update activities they created or are assigned to
+        return $activity->created_by === $user->id || $activity->assigned_to === $user->id;
     }
 
     /**
@@ -69,10 +87,18 @@ class ActivityPolicy
      */
     public function delete(User $user, Activity $activity)
     {
-        // Only admins and supervisors can delete activities
-        // Or the creator can delete their own activity if it's still pending
-        return $user->canManageActivities() ||
-               ($activity->created_by === $user->id && $activity->isPending());
+        // Admins can delete any activity
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        // Supervisors can delete activities from their department
+        if ($user->isSupervisor()) {
+            return $user->department === $activity->creator->department;
+        }
+
+        // Members can delete their own activity if it's still pending
+        return $activity->created_by === $user->id && $activity->isPending();
     }
 
     /**
@@ -84,11 +110,18 @@ class ActivityPolicy
      */
     public function updateStatus(User $user, Activity $activity)
     {
-        // Users can update status of activities they created or are assigned to
-        // Admins and supervisors can update any activity status
-        return $user->canManageActivities() ||
-               $activity->created_by === $user->id ||
-               $activity->assigned_to === $user->id;
+        // Admins can update status of any activity
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        // Supervisors can update status of activities from their department
+        if ($user->isSupervisor()) {
+            return $user->department === $activity->creator->department;
+        }
+
+        // Members can update status of activities they created or are assigned to
+        return $activity->created_by === $user->id || $activity->assigned_to === $user->id;
     }
 
     /**

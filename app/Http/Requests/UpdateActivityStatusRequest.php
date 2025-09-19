@@ -16,13 +16,8 @@ class UpdateActivityStatusRequest extends FormRequest
     {
         $activity = $this->route('activity');
         
-        // Users can update status of activities they created or are assigned to
-        // Admins and supervisors can update any activity status
-        return auth()->check() && (
-            auth()->user()->canManageActivities() ||
-            $activity->created_by === auth()->id() ||
-            $activity->assigned_to === auth()->id()
-        );
+        // Use the ActivityPolicy for authorization
+        return auth()->check() && auth()->user()->can('updateStatus', $activity);
     }
 
     /**

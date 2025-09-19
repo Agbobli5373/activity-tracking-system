@@ -139,6 +139,57 @@ class DashboardService
     }
 
     /**
+     * Get handover data for end-of-day reporting
+     */
+    public function getHandoverData(string $date): array
+    {
+        $cacheKey = "handover_data_{$date}";
+        
+        return Cache::remember($cacheKey, 300, function () use ($date) {
+            // Get pending activities that need handover
+            $handoverActivities = Activity::with(['creator:id,name,department', 'assignee:id,name'])
+                ->whereDate('created_at', $date)
+                ->where('status', 'pending')
+                ->orderBy('priority', 'desc')
+                ->orderBy('created_at', 'asc')
+                ->get();
+
+            // Get completed activities for the day
+            $completedActivities = Activity::with(['creator:id,name,department'])
+                ->whereDate('updated_at', $date)
+                ->where('status', 'done')
+                ->orderBy('updated_at', 'desc')
+                ->get();
+
+            // Get critical activities (high priority or overdue)
+            $criticalActivities = Activity::with(['creator:id,name,department', 'assignee:id,name'])
+                ->where(function ($query) use ($date) {
+                    $query->whereDate('created_at', $date)
+                          ->where('status', 'pending')
+                          ->where(function ($q) {
+                              $q->where('priority', 'high')
+                                ->orWhere('due_date', '<', Carbon::now());
+                          });
+                })
+                ->orderBy('priority', 'desc')
+                ->orderBy('due_date', 'asc')
+                ->get();
+
+            return [
+                'handover_activities' => $handoverActivities,
+                'completed_activities' => $completedActivities,
+                'critical_activities' => $criticalActivities,
+                'summary' => [
+                    'handover_count' => $handoverActivities->count(),
+                    'completed_count' => $completedActivities->count(),
+                    'critical_count' => $criticalActivities->count(),
+                ],
+                'date' => $date,
+            ];
+        });
+    }
+
+    /**
      * Clear dashboard cache for a specific date
      */
     public function clearDashboardCache(string $date): void

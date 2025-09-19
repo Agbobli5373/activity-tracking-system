@@ -29,6 +29,11 @@ class ReportController extends Controller
      */
     public function index(): View
     {
+        // Only admins and supervisors can access reports
+        if (!auth()->user()->canManageActivities()) {
+            abort(403, 'Unauthorized access to reports.');
+        }
+        
         $filterOptions = $this->reportService->getFilterOptions();
         
         return view('reports.index', compact('filterOptions'));
@@ -39,6 +44,14 @@ class ReportController extends Controller
      */
     public function generate(\App\Http\Requests\GenerateReportRequest $request): JsonResponse
     {
+        // Only admins and supervisors can generate reports
+        if (!auth()->user()->canManageActivities()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized access to reports.'
+            ], 403);
+        }
+        
         $validated = $request->validated();
 
         try {
@@ -61,6 +74,14 @@ class ReportController extends Controller
      */
     public function trends(Request $request): JsonResponse
     {
+        // Only admins and supervisors can access trends
+        if (!auth()->user()->canManageActivities()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized access to reports.'
+            ], 403);
+        }
+        
         $validated = $request->validate([
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
@@ -91,6 +112,14 @@ class ReportController extends Controller
      */
     public function departmentStats(Request $request): JsonResponse
     {
+        // Only admins and supervisors can access department statistics
+        if (!auth()->user()->canManageActivities()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized access to reports.'
+            ], 403);
+        }
+        
         $validated = $request->validate([
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
@@ -119,6 +148,11 @@ class ReportController extends Controller
      */
     public function export(\App\Http\Requests\ExportReportRequest $request): Response|StreamedResponse
     {
+        // Only admins and supervisors can export reports
+        if (!auth()->user()->canManageActivities()) {
+            abort(403, 'Unauthorized access to reports.');
+        }
+        
         $validated = $request->validated();
 
         try {
@@ -304,6 +338,14 @@ class ReportController extends Controller
      */
     public function summary(Request $request): JsonResponse
     {
+        // Only admins and supervisors can access report summaries
+        if (!auth()->user()->canManageActivities()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized access to reports.'
+            ], 403);
+        }
+        
         $validated = $request->validate([
             'period' => 'nullable|in:today,week,month,quarter,year',
         ]);

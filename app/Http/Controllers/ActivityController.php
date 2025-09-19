@@ -38,6 +38,23 @@ class ActivityController extends Controller
             $query->latest()->limit(1);
         }]);
 
+        // Apply authorization filtering based on user role
+        $user = auth()->user();
+        if ($user->isAdmin()) {
+            // Admins can see all activities - no additional filtering needed
+        } elseif ($user->isSupervisor()) {
+            // Supervisors can see activities from their department
+            $query->whereHas('creator', function ($q) use ($user) {
+                $q->where('department', $user->department);
+            });
+        } else {
+            // Members can only see activities they created or are assigned to
+            $query->where(function ($q) use ($user) {
+                $q->where('created_by', $user->id)
+                  ->orWhere('assigned_to', $user->id);
+            });
+        }
+
         // Apply filters
         if ($request->filled('status')) {
             $query->byStatus($request->status);
@@ -53,6 +70,14 @@ class ActivityController extends Controller
 
         if ($request->filled('assignee')) {
             $query->byAssignee($request->assignee);
+        }
+
+        if ($request->filled('priority')) {
+            $query->where('priority', $request->priority);
+        }
+
+        if ($request->filled('assigned_to_me')) {
+            $query->where('assigned_to', auth()->id());
         }
 
         if ($request->filled('search')) {
@@ -112,6 +137,8 @@ class ActivityController extends Controller
      */
     public function show(Activity $activity): View
     {
+        $this->authorize('view', $activity);
+        
         $activity->load([
             'creator',
             'assignee',
@@ -139,6 +166,8 @@ class ActivityController extends Controller
      */
     public function update(UpdateActivityRequest $request, Activity $activity): RedirectResponse
     {
+        $this->authorize('update', $activity);
+        
         return AuditService::transaction(function () use ($request, $activity) {
             $oldValues = $activity->toArray();
             $validated = $request->validated();
@@ -158,6 +187,8 @@ class ActivityController extends Controller
      */
     public function updateStatus(UpdateActivityStatusRequest $request, Activity $activity): JsonResponse|RedirectResponse
     {
+        $this->authorize('updateStatus', $activity);
+        
         $validated = $request->validated();
         
         $this->activityService->updateStatus(
@@ -236,6 +267,8 @@ class ActivityController extends Controller
      */
     public function apiShow(Activity $activity): JsonResponse
     {
+        $this->authorize('view', $activity);
+        
         $activity->load([
             'creator',
             'assignee',
