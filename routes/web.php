@@ -59,6 +59,31 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/user/{user}', [App\Http\Controllers\AuditLogController::class, 'userActivity'])->name('user-activity');
         Route::get('/{auditLog}', [App\Http\Controllers\AuditLogController::class, 'show'])->name('show');
     });
+
+    // Admin Routes (Admin only)
+    Route::prefix('admin')->name('admin.')->middleware(['permission:manage-users'])->group(function () {
+        // User Management Routes - Special routes first
+        Route::get('users/export', [App\Http\Controllers\Admin\UserManagementController::class, 'export'])->name('users.export');
+        Route::get('users/statistics', [App\Http\Controllers\Admin\UserManagementController::class, 'statistics'])->name('users.statistics');
+        Route::post('users/bulk-action', [App\Http\Controllers\Admin\UserManagementController::class, 'bulkAction'])->name('users.bulk-action');
+        Route::post('users/{user}/restore', [App\Http\Controllers\Admin\UserManagementController::class, 'restore'])->name('users.restore');
+        
+        // Resource routes
+        Route::resource('users', App\Http\Controllers\Admin\UserManagementController::class);
+        
+        // Role Management Routes (requires manage-roles permission)
+        Route::middleware(['permission:manage-roles'])->group(function () {
+            // Special routes first
+            Route::get('roles/permissions', [App\Http\Controllers\Admin\RoleManagementController::class, 'permissions'])->name('roles.permissions');
+            Route::post('roles/permissions', [App\Http\Controllers\Admin\RoleManagementController::class, 'updatePermissions'])->name('roles.update-permissions');
+            Route::get('roles/{role}/assign-users', [App\Http\Controllers\Admin\RoleManagementController::class, 'assignUsers'])->name('roles.assign-users');
+            Route::post('roles/{role}/assign-users', [App\Http\Controllers\Admin\RoleManagementController::class, 'updateUserAssignments'])->name('roles.update-user-assignments');
+            Route::get('roles/statistics', [App\Http\Controllers\Admin\RoleManagementController::class, 'statistics'])->name('roles.statistics');
+            
+            // Resource routes
+            Route::resource('roles', App\Http\Controllers\Admin\RoleManagementController::class);
+        });
+    });
 });
 
 Route::get('/test', function () {
