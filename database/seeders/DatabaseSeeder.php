@@ -14,8 +14,11 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        // Always seed admin user
+        // Always seed core data
         $this->call([
+            DepartmentSeeder::class,
+            SystemSettingSeeder::class,
+            RolePermissionSeeder::class,
             AdminUserSeeder::class,
         ]);
 
