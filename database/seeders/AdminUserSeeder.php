@@ -20,7 +20,7 @@ class AdminUserSeeder extends Seeder
             'name' => 'System Administrator',
             'email' => 'admin@activitytracker.com',
             'employee_id' => 'ADMIN001',
-            'role' => 'admin',
+            'role' => 'Administrator',
             'department' => 'IT Support',
             'password' => Hash::make('password123'),
             'email_verified_at' => now(),

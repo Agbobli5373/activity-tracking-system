@@ -6,7 +6,7 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Spatie\Permission\Models\Permission;
-use Spatie\Permission\Models\Role;
+use App\Models\Role;
 use Tests\TestCase;
 
 class RoleManagementTest extends TestCase
@@ -29,8 +29,8 @@ class RoleManagementTest extends TestCase
         $adminRole->givePermissionTo(['manage-users', 'manage-roles', 'view-reports', 'manage-settings']);
         $this->adminUser->assignRole($adminRole);
         
-        // Create regular user for testing
-        $this->regularUser = User::factory()->create(['status' => 'active']);
+        // Create regular user for testing (no roles assigned)
+        $this->regularUser = User::factory()->create(['status' => 'active', 'role' => 'member']);
     }
 
     /** @test */
@@ -183,7 +183,8 @@ class RoleManagementTest extends TestCase
     /** @test */
     public function cannot_delete_system_roles()
     {
-        $systemRole = Role::create(['name' => 'Administrator']);
+        // Use the existing Administrator role created in setUp
+        $systemRole = Role::where('name', 'Administrator')->first();
 
         $response = $this->actingAs($this->adminUser)
             ->delete(route('admin.roles.destroy', $systemRole));
@@ -198,7 +199,7 @@ class RoleManagementTest extends TestCase
     public function cannot_delete_role_with_assigned_users()
     {
         $role = Role::create(['name' => 'Test Role']);
-        $user = User::factory()->create();
+        $user = User::factory()->create(['status' => 'active']);
         $user->assignRole($role);
 
         $response = $this->actingAs($this->adminUser)
@@ -293,9 +294,9 @@ class RoleManagementTest extends TestCase
         $role1 = Role::create(['name' => 'Role 1']);
         $role2 = Role::create(['name' => 'Role 2']);
         
-        $user1 = User::factory()->create();
-        $user2 = User::factory()->create();
-        $user3 = User::factory()->create();
+        $user1 = User::factory()->create(['status' => 'active']);
+        $user2 = User::factory()->create(['status' => 'active']);
+        $user3 = User::factory()->create(['status' => 'active']);
         
         $user1->assignRole($role1);
         $user2->assignRole($role1);
@@ -316,7 +317,7 @@ class RoleManagementTest extends TestCase
         $data = $response->json();
         $this->assertGreaterThan(0, $data['total_roles']);
         $this->assertGreaterThan(0, $data['total_permissions']);
-        $this->assertEquals(3, $data['users_with_roles']);
+        $this->assertEquals(4, $data['users_with_roles']); // 3 test users + 1 admin user from setUp
     }
 
     /** @test */

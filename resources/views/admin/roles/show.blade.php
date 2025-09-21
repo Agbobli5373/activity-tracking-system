@@ -3,95 +3,106 @@
 @section('title', 'Role Details')
 
 @section('content')
-<div class="container-fluid">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <!-- Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h1 class="h3 mb-0 text-gray-800">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
+        <div class="mb-4 sm:mb-0">
+            <h1 class="text-3xl font-bold text-gray-900 flex items-center">
                 Role: {{ $role->name }}
                 @if(in_array($role->name, ['Administrator', 'Supervisor', 'Team Member', 'Read-Only']))
-                    <span class="badge badge-warning ms-2">System Role</span>
+                    <span class="ml-3 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">System Role</span>
                 @else
-                    <span class="badge badge-info ms-2">Custom Role</span>
+                    <span class="ml-3 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">Custom Role</span>
                 @endif
             </h1>
-            <p class="mb-0 text-muted">{{ $role->description ?? 'No description provided' }}</p>
+            <p class="mt-1 text-sm text-gray-600">{{ $role->description ?? 'No description provided' }}</p>
         </div>
-        <div class="d-flex gap-2">
+        <div class="flex flex-col sm:flex-row gap-3">
             @can('manage-roles')
-            <a href="{{ route('admin.roles.edit', $role) }}" class="btn btn-primary">
-                <i class="fas fa-edit"></i> Edit Role
+            <a href="{{ route('admin.roles.edit', $role) }}" class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-lg text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                </svg>
+                Edit Role
             </a>
-            <a href="{{ route('admin.roles.assign-users', $role) }}" class="btn btn-outline-secondary">
-                <i class="fas fa-users"></i> Manage Users
+            <a href="{{ route('admin.roles.assign-users', $role) }}" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+                </svg>
+                Manage Users
             </a>
             @endcan
-            <a href="{{ route('admin.roles.index') }}" class="btn btn-secondary">
-                <i class="fas fa-arrow-left"></i> Back to Roles
+            <a href="{{ route('admin.roles.index') }}" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
+                Back to Roles
             </a>
         </div>
     </div>
 
-    <div class="row">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <!-- Role Information -->
-        <div class="col-lg-4">
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Role Information</h6>
+        <div class="lg:col-span-1">
+            <div class="bg-white shadow-sm rounded-lg border border-gray-200 mb-6">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">Role Information</h3>
                 </div>
-                <div class="card-body">
-                    <div class="mb-3">
-                        <strong>Role Name:</strong><br>
-                        <span class="text-muted">{{ $role->name }}</span>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <strong>Description:</strong><br>
-                        <span class="text-muted">{{ $role->description ?? 'No description provided' }}</span>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <strong>Type:</strong><br>
-                        @if(in_array($role->name, ['Administrator', 'Supervisor', 'Team Member', 'Read-Only']))
-                            <span class="badge badge-warning">System Role</span>
-                        @else
-                            <span class="badge badge-info">Custom Role</span>
-                        @endif
-                    </div>
-                    
-                    <div class="mb-3">
-                        <strong>Created:</strong><br>
-                        <span class="text-muted">{{ $role->created_at->format('M d, Y \a\t g:i A') }}</span>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <strong>Last Updated:</strong><br>
-                        <span class="text-muted">{{ $role->updated_at->format('M d, Y \a\t g:i A') }}</span>
-                    </div>
-                    
-                    <div class="mb-0">
-                        <strong>Guard:</strong><br>
-                        <span class="text-muted">{{ $role->guard_name }}</span>
-                    </div>
+                <div class="p-6">
+                    <dl class="space-y-4">
+                        <div>
+                            <dt class="text-sm font-medium text-gray-700">Role Name:</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ $role->name }}</dd>
+                        </div>
+                        
+                        <div>
+                            <dt class="text-sm font-medium text-gray-700">Description:</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ $role->description ?? 'No description provided' }}</dd>
+                        </div>
+                        
+                        <div>
+                            <dt class="text-sm font-medium text-gray-700">Type:</dt>
+                            <dd class="mt-1">
+                                @if(in_array($role->name, ['Administrator', 'Supervisor', 'Team Member', 'Read-Only']))
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">System Role</span>
+                                @else
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">Custom Role</span>
+                                @endif
+                            </dd>
+                        </div>
+                        
+                        <div>
+                            <dt class="text-sm font-medium text-gray-700">Created:</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ $role->created_at->format('M d, Y \a\t g:i A') }}</dd>
+                        </div>
+                        
+                        <div>
+                            <dt class="text-sm font-medium text-gray-700">Last Updated:</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ $role->updated_at->format('M d, Y \a\t g:i A') }}</dd>
+                        </div>
+                        
+                        <div>
+                            <dt class="text-sm font-medium text-gray-700">Guard:</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ $role->guard_name }}</dd>
+                        </div>
+                    </dl>
                 </div>
             </div>
 
             <!-- Statistics -->
-            <div class="card shadow">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-success">Statistics</h6>
+            <div class="bg-white shadow-sm rounded-lg border border-gray-200">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">Statistics</h3>
                 </div>
-                <div class="card-body">
-                    <div class="row text-center">
-                        <div class="col-6">
-                            <div class="border-right">
-                                <div class="h4 font-weight-bold text-primary">{{ $role->users->count() }}</div>
-                                <div class="text-xs text-uppercase text-muted">Users</div>
-                            </div>
+                <div class="p-6">
+                    <div class="grid grid-cols-2 gap-4 text-center">
+                        <div class="border-r border-gray-200">
+                            <div class="text-2xl font-bold text-blue-600">{{ $role->users->count() }}</div>
+                            <div class="text-xs uppercase text-gray-500">Users</div>
                         </div>
-                        <div class="col-6">
-                            <div class="h4 font-weight-bold text-success">{{ $role->permissions->count() }}</div>
-                            <div class="text-xs text-uppercase text-muted">Permissions</div>
+                        <div>
+                            <div class="text-2xl font-bold text-green-600">{{ $role->permissions->count() }}</div>
+                            <div class="text-xs uppercase text-gray-500">Permissions</div>
                         </div>
                     </div>
                 </div>
@@ -99,14 +110,17 @@
         </div>
 
         <!-- Permissions -->
-        <div class="col-lg-8">
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-success">
-                        <i class="fas fa-key"></i> Permissions ({{ $role->permissions->count() }})
-                    </h6>
+        <div class="lg:col-span-2">
+            <div class="bg-white shadow-sm rounded-lg border border-gray-200 mb-6">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900 flex items-center">
+                        <svg class="w-5 h-5 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path>
+                        </svg>
+                        Permissions ({{ $role->permissions->count() }})
+                    </h3>
                 </div>
-                <div class="card-body">
+                <div class="p-6">
                     @if($role->permissions->count() > 0)
                         @php
                             $groupedPermissions = $role->permissions->groupBy(function ($permission) {
@@ -115,35 +129,54 @@
                             });
                         @endphp
 
-                        <div class="row">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             @foreach($groupedPermissions as $category => $permissions)
-                            <div class="col-md-6 mb-4">
-                                <div class="card border-left-success">
-                                    <div class="card-header bg-light py-2">
-                                        <h6 class="mb-0 text-capitalize">
-                                            <i class="fas fa-{{ $category === 'manage' ? 'cog' : ($category === 'view' ? 'eye' : 'key') }} me-2"></i>
-                                            {{ ucfirst($category) }} Permissions
-                                        </h6>
+                            <div class="bg-gray-50 rounded-lg border border-gray-200">
+                                <div class="px-4 py-3 border-b border-gray-200 bg-gray-100 rounded-t-lg">
+                                    <h4 class="text-sm font-medium text-gray-900 flex items-center">
+                                        @if($category === 'manage')
+                                            <svg class="w-4 h-4 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                            </svg>
+                                        @elseif($category === 'view')
+                                            <svg class="w-4 h-4 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                            </svg>
+                                        @else
+                                            <svg class="w-4 h-4 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path>
+                                            </svg>
+                                        @endif
+                                        {{ ucfirst($category) }} Permissions
+                                    </h4>
+                                </div>
+                                <div class="p-4 space-y-2">
+                                    @foreach($permissions as $permission)
+                                    <div class="flex items-center">
+                                        <svg class="w-4 h-4 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                        </svg>
+                                        <span class="text-sm text-gray-900">{{ ucwords(str_replace('-', ' ', $permission->name)) }}</span>
                                     </div>
-                                    <div class="card-body py-2">
-                                        @foreach($permissions as $permission)
-                                        <div class="d-flex align-items-center mb-2">
-                                            <i class="fas fa-check-circle text-success me-2"></i>
-                                            <span>{{ ucwords(str_replace('-', ' ', $permission->name)) }}</span>
-                                        </div>
-                                        @endforeach
-                                    </div>
+                                    @endforeach
                                 </div>
                             </div>
                             @endforeach
                         </div>
                     @else
-                        <div class="text-center py-4">
-                            <i class="fas fa-key fa-3x text-gray-300 mb-3"></i>
-                            <p class="text-muted mb-0">No permissions assigned to this role</p>
+                        <div class="text-center py-12">
+                            <svg class="w-12 h-12 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path>
+                            </svg>
+                            <p class="text-gray-500 mb-4">No permissions assigned to this role</p>
                             @can('manage-roles')
-                            <a href="{{ route('admin.roles.edit', $role) }}" class="btn btn-sm btn-primary mt-2">
-                                <i class="fas fa-plus"></i> Add Permissions
+                            <a href="{{ route('admin.roles.edit', $role) }}" class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-lg text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                                </svg>
+                                Add Permissions
                             </a>
                             @endcan
                         </div>
@@ -152,88 +185,109 @@
             </div>
 
             <!-- Users with this Role -->
-            <div class="card shadow">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-info">
-                        <i class="fas fa-users"></i> Users with this Role ({{ $role->users->count() }})
-                    </h6>
+            <div class="bg-white shadow-sm rounded-lg border border-gray-200">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900 flex items-center">
+                        <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+                        </svg>
+                        Users with this Role ({{ $role->users->count() }})
+                    </h3>
                 </div>
-                <div class="card-body">
+                <div class="p-6">
                     @if($role->users->count() > 0)
-                        <div class="table-responsive">
-                            <table class="table table-bordered">
-                                <thead>
-                                    <tr>
-                                        <th>Name</th>
-                                        <th>Email</th>
-                                        <th>Department</th>
-                                        <th>Status</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach($role->users as $user)
-                                    <tr>
-                                        <td>
-                                            <div class="d-flex align-items-center">
-                                                <div class="avatar avatar-sm me-2">
-                                                    <div class="avatar-initial bg-primary rounded-circle">
-                                                        {{ strtoupper(substr($user->name, 0, 1)) }}
+                        <div class="overflow-hidden">
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full divide-y divide-gray-200">
+                                    <thead class="bg-gray-50">
+                                        <tr>
+                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Department</th>
+                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="bg-white divide-y divide-gray-200">
+                                        @foreach($role->users as $user)
+                                        <tr class="hover:bg-gray-50">
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <div class="flex items-center">
+                                                    <div class="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                                                        <span class="text-sm font-medium text-blue-600">{{ strtoupper(substr($user->name, 0, 1)) }}</span>
                                                     </div>
+                                                    <div class="text-sm font-medium text-gray-900">{{ $user->name }}</div>
                                                 </div>
-                                                {{ $user->name }}
-                                            </div>
-                                        </td>
-                                        <td>{{ $user->email }}</td>
-                                        <td>
-                                            @if($user->department)
-                                                {{ is_object($user->department) ? $user->department->name : $user->department }}
-                                            @else
-                                                <span class="text-muted">Not assigned</span>
-                                            @endif
-                                        </td>
-                                        <td>
-                                            @switch($user->status)
-                                                @case('active')
-                                                    <span class="badge badge-success">Active</span>
-                                                    @break
-                                                @case('inactive')
-                                                    <span class="badge badge-secondary">Inactive</span>
-                                                    @break
-                                                @case('locked')
-                                                    <span class="badge badge-danger">Locked</span>
-                                                    @break
-                                                @case('pending')
-                                                    <span class="badge badge-warning">Pending</span>
-                                                    @break
-                                                @default
-                                                    <span class="badge badge-light">{{ ucfirst($user->status) }}</span>
-                                            @endswitch
-                                        </td>
-                                        <td>
-                                            @can('manage-users')
-                                            <a href="{{ route('admin.users.show', $user) }}" 
-                                               class="btn btn-sm btn-outline-info" title="View User">
-                                                <i class="fas fa-eye"></i>
-                                            </a>
-                                            <a href="{{ route('admin.users.edit', $user) }}" 
-                                               class="btn btn-sm btn-outline-primary" title="Edit User">
-                                                <i class="fas fa-edit"></i>
-                                            </a>
-                                            @endcan
-                                        </td>
-                                    </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <div class="text-sm text-gray-900">{{ $user->email }}</div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <div class="text-sm text-gray-900">
+                                                    @if($user->department)
+                                                        {{ is_object($user->department) ? $user->department->name : $user->department }}
+                                                    @else
+                                                        <span class="text-gray-500">Not assigned</span>
+                                                    @endif
+                                                </div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                @switch($user->status)
+                                                    @case('active')
+                                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Active</span>
+                                                        @break
+                                                    @case('inactive')
+                                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">Inactive</span>
+                                                        @break
+                                                    @case('locked')
+                                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">Locked</span>
+                                                        @break
+                                                    @case('pending')
+                                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">Pending</span>
+                                                        @break
+                                                    @default
+                                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">{{ ucfirst($user->status) }}</span>
+                                                @endswitch
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                                <div class="flex items-center space-x-2">
+                                                    @can('manage-users')
+                                                    <a href="{{ route('admin.users.show', $user) }}" 
+                                                       class="text-blue-600 hover:text-blue-900 p-1 rounded-md hover:bg-blue-50 transition-colors duration-200"
+                                                       title="View User">
+                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                                        </svg>
+                                                    </a>
+                                                    <a href="{{ route('admin.users.edit', $user) }}" 
+                                                       class="text-gray-600 hover:text-gray-900 p-1 rounded-md hover:bg-gray-50 transition-colors duration-200"
+                                                       title="Edit User">
+                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                                        </svg>
+                                                    </a>
+                                                    @endcan
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     @else
-                        <div class="text-center py-4">
-                            <i class="fas fa-users fa-3x text-gray-300 mb-3"></i>
-                            <p class="text-muted mb-0">No users assigned to this role</p>
+                        <div class="text-center py-12">
+                            <svg class="w-12 h-12 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+                            </svg>
+                            <p class="text-gray-500 mb-4">No users assigned to this role</p>
                             @can('manage-roles')
-                            <a href="{{ route('admin.roles.assign-users', $role) }}" class="btn btn-sm btn-primary mt-2">
-                                <i class="fas fa-plus"></i> Assign Users
+                            <a href="{{ route('admin.roles.assign-users', $role) }}" class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-lg text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                                </svg>
+                                Assign Users
                             </a>
                             @endcan
                         </div>
@@ -244,27 +298,3 @@
     </div>
 </div>
 @endsection
-
-@push('styles')
-<style>
-.avatar {
-    width: 32px;
-    height: 32px;
-}
-
-.avatar-initial {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 14px;
-    font-weight: 600;
-    color: white;
-}
-
-.border-right {
-    border-right: 1px solid #e3e6f0 !important;
-}
-</style>
-@endpush
