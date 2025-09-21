@@ -165,20 +165,6 @@
         @apply bg-error-100 text-error-800;
     }
 
-    /* Animation Utilities */
-    .animate-fade-in {
-        @apply animate-fade-in;
-    }
-
-    .animate-slide-up {
-        @apply animate-slide-up;
-    }
-
-    .animate-slide-down {
-        @apply animate-slide-down;
-    }
-
-    .animate-scale-in {
-        @apply animate-scale-in;
-    }
+    /* Animation Utilities - These are already available as Tailwind utilities */
+    /* You can use animate-fade-in, animate-slide-up, animate-slide-down, animate-scale-in directly in your HTML */
 }

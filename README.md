@@ -86,8 +86,6 @@ The application includes comprehensive visual documentation with screenshots of 
 -   Safari 14+
 -   Edge 90+
 
-
-
 ## Support
 
 For support and questions:
@@ -107,7 +105,7 @@ For support and questions:
 -   PHP 8.0.2 or higher
 -   Composer 2.x
 -   Node.js 16.x or higher
--   MySQL 8.0+ 
+-   MySQL 8.0+
 
 ### Installation
 
