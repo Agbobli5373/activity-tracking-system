@@ -430,8 +430,12 @@ class User extends Authenticatable
 
         // Check Spatie roles first
         try {
-            if (method_exists(parent::class, 'hasAnyRole') && parent::hasAnyRole($roles)) {
-                return true;
+            // Use the trait method directly
+            if (trait_exists(\Spatie\Permission\Traits\HasRoles::class) && $this->roles()->exists()) {
+                $userRoles = $this->getRoleNames()->toArray();
+                if (array_intersect($roles, $userRoles)) {
+                    return true;
+                }
             }
         } catch (\Exception $e) {
             // If Spatie role check fails, continue to legacy check
@@ -448,8 +452,18 @@ class User extends Authenticatable
     {
         // Check Spatie permissions first
         try {
-            if (method_exists(parent::class, 'hasPermissionTo') && parent::hasPermissionTo($permission, $guardName)) {
-                return true;
+            if (trait_exists(\Spatie\Permission\Traits\HasRoles::class)) {
+                // Check direct permissions
+                $directPermissions = $this->getDirectPermissions();
+                if ($directPermissions->contains('name', $permission)) {
+                    return true;
+                }
+                
+                // Check permissions via roles
+                $rolePermissions = $this->getPermissionsViaRoles();
+                if ($rolePermissions->contains('name', $permission)) {
+                    return true;
+                }
             }
         } catch (\Exception $e) {
             // If Spatie permission check fails, continue to legacy check

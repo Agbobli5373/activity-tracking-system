@@ -67,6 +67,7 @@ class Kernel extends HttpKernel
         'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
         'ip.filter' => \App\Http\Middleware\IpFilterMiddleware::class,
         'password.confirm' => \Illuminate\Auth\Middleware\RequirePassword::class,
+        'permission' => \App\Http\Middleware\PermissionMiddleware::class,
         'role' => \App\Http\Middleware\RoleMiddleware::class,
         'sanitize' => \App\Http\Middleware\SanitizeInputMiddleware::class,
         'signed' => \App\Http\Middleware\ValidateSignature::class,
