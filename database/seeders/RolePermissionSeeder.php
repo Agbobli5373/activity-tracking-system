@@ -4,6 +4,8 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 class RolePermissionSeeder extends Seeder
 {
@@ -22,25 +24,25 @@ class RolePermissionSeeder extends Seeder
             'edit-users',
             'delete-users',
             'view-users',
-            
+
             // Role Management
             'manage-roles',
             'create-roles',
             'edit-roles',
             'delete-roles',
             'assign-roles',
-            
+
             // Department Management
             'manage-departments',
             'create-departments',
             'edit-departments',
             'delete-departments',
-            
+
             // System Settings
             'manage-system-settings',
             'view-system-settings',
             'edit-system-settings',
-            
+
             // Activity Management (existing)
             'manage-activities',
             'create-activities',
@@ -48,12 +50,12 @@ class RolePermissionSeeder extends Seeder
             'delete-activities',
             'view-activities',
             'assign-activities',
-            
+
             // Reports and Analytics
             'view-reports',
             'export-reports',
             'view-audit-logs',
-            
+
             // Profile Management
             'edit-own-profile',
             'change-own-password',
@@ -61,20 +63,20 @@ class RolePermissionSeeder extends Seeder
         ];
 
         foreach ($permissions as $permission) {
-            \Spatie\Permission\Models\Permission::create(['name' => $permission]);
+            Permission::firstOrCreate(['name' => $permission]);
         }
 
         // Create roles
-        $adminRole = \Spatie\Permission\Models\Role::create(['name' => 'Administrator']);
-        $supervisorRole = \Spatie\Permission\Models\Role::create(['name' => 'Supervisor']);
-        $memberRole = \Spatie\Permission\Models\Role::create(['name' => 'Team Member']);
-        $readOnlyRole = \Spatie\Permission\Models\Role::create(['name' => 'Read-Only']);
+        $adminRole = Role::firstOrCreate(['name' => 'Administrator']);
+        $supervisorRole = Role::firstOrCreate(['name' => 'Supervisor']);
+        $memberRole = Role::firstOrCreate(['name' => 'Team Member']);
+        $readOnlyRole = Role::firstOrCreate(['name' => 'Read-Only']);
 
         // Assign permissions to Administrator (all permissions)
-        $adminRole->givePermissionTo(\Spatie\Permission\Models\Permission::all());
+        $adminRole->syncPermissions(Permission::all());
 
         // Assign permissions to Supervisor
-        $supervisorRole->givePermissionTo([
+        $supervisorPermissions = [
             'view-users',
             'manage-activities',
             'create-activities',
@@ -87,24 +89,27 @@ class RolePermissionSeeder extends Seeder
             'edit-own-profile',
             'change-own-password',
             'manage-own-preferences'
-        ]);
+        ];
+        $supervisorRole->syncPermissions($supervisorPermissions);
 
         // Assign permissions to Team Member
-        $memberRole->givePermissionTo([
+        $memberPermissions = [
             'view-activities',
             'create-activities',
             'edit-activities',
             'edit-own-profile',
             'change-own-password',
             'manage-own-preferences'
-        ]);
+        ];
+        $memberRole->syncPermissions($memberPermissions);
 
         // Assign permissions to Read-Only
-        $readOnlyRole->givePermissionTo([
+        $readOnlyPermissions = [
             'view-activities',
             'edit-own-profile',
             'change-own-password',
             'manage-own-preferences'
-        ]);
+        ];
+        $readOnlyRole->syncPermissions($readOnlyPermissions);
     }
 }

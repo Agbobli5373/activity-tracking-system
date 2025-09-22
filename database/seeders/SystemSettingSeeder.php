@@ -83,7 +83,10 @@ class SystemSettingSeeder extends Seeder
         ];
 
         foreach ($settings as $setting) {
-            \App\Models\SystemSetting::create($setting);
+            \App\Models\SystemSetting::updateOrCreate(
+                ['key' => $setting['key']],
+                $setting
+            );
         }
     }
 }
